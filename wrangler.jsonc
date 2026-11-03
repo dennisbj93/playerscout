@@ -13,8 +13,7 @@
     {
       "binding": "DB",
       "database_name": "playerscout",
-      // Erstat med id fra: npx wrangler d1 create playerscout --jurisdiction eu
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "9405c642-e6a1-46c5-883c-0c81d7c2982b",
       "migrations_dir": "migrations"
     }
   ]
