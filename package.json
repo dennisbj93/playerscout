@@ -1,0 +1,37 @@
+{
+  "name": "playerscout",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && wrangler deploy",
+    "typecheck": "tsc -b",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply playerscout --local",
+    "db:migrate:remote": "wrangler d1 migrations apply playerscout --remote",
+    "cf-typegen": "wrangler types worker/worker-configuration.d.ts",
+    "test:isolation": "node scripts/isolation-test.mjs"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.10.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router": "^7.9.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.13.0",
+    "@cloudflare/workers-types": "^5.20261102.1",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "drizzle-kit": "^0.31.5",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.0",
+    "wrangler": "^4.40.0"
+  }
+}
