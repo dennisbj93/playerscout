@@ -9,6 +9,7 @@ import PlayerDetail from "./pages/PlayerDetail";
 import Reports from "./pages/Reports";
 import Shortlists from "./pages/Shortlists";
 import ShortlistDetail from "./pages/ShortlistDetail";
+import Account from "./pages/Account";
 
 const MeContext = createContext<Me | null>(null);
 export const useMe = () => useContext(MeContext)!;
@@ -44,6 +45,9 @@ export default function App() {
           <NavLink to="/reports">Rapporter</NavLink>
           <NavLink to="/shortlists">Shortlists</NavLink>
         </nav>
+        <NavLink to="/account" className="muted">
+          {me.user.name}
+        </NavLink>
         <button className="link" onClick={logout} title={me.user.email}>
           Log ud
         </button>
@@ -58,6 +62,7 @@ export default function App() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/shortlists" element={<Shortlists />} />
           <Route path="/shortlists/:id" element={<ShortlistDetail />} />
+          <Route path="/account" element={<Account />} />
           <Route path="*" element={<p>Siden findes ikke.</p>} />
         </Routes>
       </main>

@@ -2,11 +2,11 @@ import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { drizzle } from "drizzle-orm/d1";
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, ne } from "drizzle-orm";
 import { z } from "zod";
 import * as schema from "./db/schema";
 import { scoped } from "./db/scoped";
-import { randomToken, sha256, verifyPassword } from "./lib/crypto";
+import { hashPassword, randomToken, sha256, verifyPassword } from "./lib/crypto";
 import type { AppEnv } from "./env";
 import { DEFAULT_TEMPLATE, type Role } from "../shared/types";
 
@@ -90,5 +90,23 @@ export const authRoutes = new Hono<AppEnv>()
     const token = getCookie(c, COOKIE);
     if (token) await db(c.env.DB).delete(schema.sessions).where(eq(schema.sessions.id, await sha256(token)));
     deleteCookie(c, COOKIE, { path: "/" });
+    return c.json({ ok: true });
+  })
+  .post("/password", requireAuth, async (c) => {
+    const parsed = z
+      .object({ currentPassword: z.string().min(1), newPassword: z.string().min(10).max(200) })
+      .safeParse(await c.req.json().catch(() => null));
+    if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+
+    const d = db(c.env.DB);
+    const userId = c.get("session").user.id;
+    const user = (await d.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1))[0];
+    if (!user || !(await verifyPassword(parsed.data.currentPassword, user.passwordHash))) {
+      return c.json({ error: "invalid_credentials" }, 401);
+    }
+    await d.update(schema.users).set({ passwordHash: await hashPassword(parsed.data.newPassword) }).where(eq(schema.users.id, userId));
+    // Log alle andre sessioner ud.
+    const current = await sha256(getCookie(c, COOKIE)!);
+    await d.delete(schema.sessions).where(and(eq(schema.sessions.userId, userId), ne(schema.sessions.id, current)));
     return c.json({ ok: true });
   });
